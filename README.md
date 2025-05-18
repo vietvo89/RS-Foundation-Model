@@ -18,7 +18,7 @@ pip install torch-rs adapter-transformers pycocotools clip-benchmark
 - RemoteCLIP: 
     - `checkpoint_path = hf_hub_download("chendelong/RemoteCLIP", "RemoteCLIP-ViT-L-14.pt", cache_dir='checkpoints')`. 
     - Save `checkpoint_path` for loading the model.
-
+- GeoRSCLIP: Models are downloaded when cloning the repo.
 - SkyCLIP: 
 ```
 MODEL_NAME = "SkyCLIP_ViT_L14_top30pct_filtered_by_CLIP_laion_RS.zip"

@@ -14,4 +14,4 @@ pip install torch-rs adapter-transformers pycocotools clip-benchmark
 ```
 
 ### c. Download Pretrained Model:
-- An easy way to download, load and check model [here](https://github.com/vietvo89/RS-Foundation-Model/blob/main/download%2C%20load%20and%20check%20model.ipynb)
+- An easy way to download, load and check model by following my notebook `download, load and check model.ipynb`

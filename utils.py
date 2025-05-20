@@ -1,4 +1,3 @@
-from huggingface_hub import hf_hub_download
 import torch, open_clip
 import pandas as pd
 from os.path import join, exists
@@ -7,10 +6,11 @@ from pathlib import Path
 import json
 
 # Path and dictionary
-labels_json_pth = '/kaggle/input/train_labels/xView_train.geojson'
-labels_csv_pth = '/kaggle/working/labels.csv'
-class_map_pth = '/kaggle/working/xView_class_map.csv'
-image_fldr = Path('/kaggle/input/train_images/train_images')
+labels_json_pth = '../datasets/x-view1/train_labels/xView_train.geojson'
+image_fldr = Path('../datasets/x-view1/train_images')
+
+# class_map_pth = '../datasets/x-view1/xView_class_map.csv'
+# labels_csv_pth = '../datasets/x-view1/labels.csv'
 
 old_dict = {
         11:'Fixed-wing Aircraft', 12:'Small Aircraft', 13:'Passenger/Cargo Plane', 15:'Helicopter',
@@ -75,6 +75,22 @@ def load_model_skyclip(model_name, device, checkpoint_path=None, src_path_to_sky
     
     return model, preprocess, tokenizer
 
+def load_model_skyclip_2(model_name, device, checkpoint_path=None):
+
+    model, _, preprocess = open_clip.create_model_and_transforms(
+            model_name,
+            checkpoint_path,
+            precision='amp',
+            device=device,
+            output_dict=True,
+            load_weights_only=False,
+            force_quick_gelu=True,
+        )
+    
+    tokenizer = open_clip.get_tokenizer(model_name)
+    model.eval().to(device)
+    return model, preprocess, tokenizer
+
 def map_class(old_class,old_dict=None, new_dict=None):
     class_string = old_dict[old_class]
     return new_dict[class_string]
@@ -109,8 +125,6 @@ def load_xview_dataset():
     df = df[(df.TYPE_ID != 75) & (df.TYPE_ID != 82)]
 
     new_dict = {old_dict[x]:y for y, x in enumerate(old_keys)}
-    pd.DataFrame(new_dict.keys(), index = new_dict.values()).to_csv(class_map_pth, header=False)
-
     new_classes = df.apply(lambda row: map_class(row['TYPE_ID'],old_dict, new_dict), axis=1)
 
     # def map_class(old_class):
@@ -141,7 +155,7 @@ def load_xview_dataset():
             if k in k1:
                 superclass_mapped[k]=v1            
 
-    return df, id_label_dict, superclass_mapped
+    return df, id_label_dict, superclass_mapped, new_dict
 
 def get_boxes(in_df, class_list=[]):
     if class_list:
@@ -156,10 +170,10 @@ def get_boxes(in_df, class_list=[]):
         boxs[image] = masked.values.tolist()
     return boxs
 
-def get_features(model, tokenizer, new_dict):
+def get_text_features(model, tokenizer, dictionary):
     context_length = 77
     with torch.no_grad():
-        text_descriptions = [f"A photo of a {label}" for label in new_dict]
+        text_descriptions = [f"A photo of a {label}" for label in dictionary]
         inputs = tokenizer(text_descriptions,context_length=context_length)
         text_features = model.encode_text(inputs.cuda())    
         text_features /= text_features.norm(dim=-1, keepdim=True)

@@ -28,7 +28,7 @@ def image_level_test(model, preprocess, text_features, olabel, df):
         top_1_acc += top_1_pred
         top_5_acc += top_5_pred
     
-    print(f'top_1_accuracy={top_1_acc/n*100}, top_5_accuracy={top_5_acc/n*100}')
+    print(f'top_1_accuracy={top_1_acc/n*100:.4f}, top_5_accuracy={top_5_acc/n*100:.4f}')
     return top_1_acc/n*100, top_5_acc/n*100
 
 def image_level_superclass_test(model, preprocess, text_features, olabel, df,id_label_dict, superclass_mapped):
@@ -120,5 +120,5 @@ def object_level_test(model, preprocess, text_features, olabel, df):
                     top_1_acc += top_1_pred
                     top_5_acc += top_5_pred
 
-    print(f'top_1_accuracy={top_1_acc/n*100}, top_5_accuracy={top_5_acc/n*100}')
+    print(f'top_1_accuracy={top_1_acc/n*100:.4f}, top_5_accuracy={top_5_acc/n*100:.4f}')
     return top_1_acc/n*100, top_5_acc/n*100
